@@ -1,6 +1,7 @@
 # Setup-Dots
 
 1. conda create --name <env> --file conda-requirement.txt
+
     tensorflow-gpu      : 1.14.1<br/>
     openCV              : 4.1.0<br/>
     dlib	            : 19.17<br/>
