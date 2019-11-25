@@ -2,9 +2,9 @@
 
 1. conda create --name <env> --file conda-requirement.txt
 
-        tensorflow-gpu      : 1.14.1
+        tensorflow-gpu      : 2.0
         openCV              : 4.1.0
-        dlib	            : 19.17
+        dlib                : 19.17
 
 2. nvim.local           : neovim init.vim file
 
