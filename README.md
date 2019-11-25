@@ -1,6 +1,6 @@
 # Setup-Dots
 
-1. conda create --name <env> --file conda-requirement.txt
+1. anaconda environment file (requirement.txt)
 
         tensorflow-gpu      : 2.0
         openCV              : 4.1.0
