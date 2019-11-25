@@ -1,0 +1,53 @@
+# -- feeds ---------------------------------------------------------------------
+
+auto-reload yes
+refresh-on-startup yes
+reload-time 120
+reload-threads 4
+download-retries 4
+download-timeout 10
+prepopulate-query-feeds yes
+max-items 100
+
+# -- display -------------------------------------------------------------------
+
+show-read-feeds no
+feed-sort-order unreadarticlecount-asc
+
+# color info default default reverse
+color listnormal_unread green default
+color listfocus blue default reverse bold
+color listfocus_unread green default reverse bold
+color info red black bold
+
+text-width 500
+
+# -- navigation ----------------------------------------------------------------
+
+macro p set browser "tsp mpv --profile=gpu-hq %u"; open-in-browser-and-mark-read ; set browser "$BROWSER %u"
+
+
+# -- bookmarks -----------------------------------------------------------------
+
+bookmark-cmd ~/.newsboat/bookmark.sh
+bookmark-interactive no
+bookmark-autopilot yes
+
+# -- highlights -----------------------------------------------------------------
+
+highlight article "^(Feed):.*$" yellow default
+highlight article "^(Title):.*$" blue default
+highlight article "^(Author):.*$" cyan default
+highlight article "^(Link):.*$" red default
+highlight article "\\[image\\ [0-9]+\\]" green default
+
+# -- notification --------------------------------------------------------------
+
+# notify-always yes
+# notify-program "/usr/bin/notify-send"
+
+# -- feed format ---------------------------------------------------------------
+
+feedlist-format     "%4i %n %11u %t"
+articlelist-format  "%4i %f %D   %?T?|%-17T|  ?%t"
+notify-format       "%d new articles (%n unread articles, %f unread feeds)"
