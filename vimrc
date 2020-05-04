@@ -1,7 +1,7 @@
 "*****************************************************************************
 "" Vim-PLug core
 "*****************************************************************************
-let vimplug_exists=expand('~/.config/nvim/autoload/plug.vim')
+let vimplug_exists=expand('~/.vim/autoload/plug.vim')
 
 if !filereadable(vimplug_exists)
   if !executable("curl")
@@ -17,7 +17,7 @@ if !filereadable(vimplug_exists)
 endif
 
 " Required:
-call plug#begin(expand('~/.config/nvim/plugged'))
+call plug#begin(expand('~/.vim/plugged'))
 
 "*****************************************************************************
 "" Plug install packages
@@ -47,17 +47,38 @@ Plug 'morhetz/gruvbox'
 "buffer as tabs
 Plug 'ap/vim-buftabline'
 
+"kite plugin!! just incase
+Plug 'kiteco/vim-plugin'
+
+"including just for more fucntionality
+Plug 'davidhalter/jedi-vim'
+
+"tagbar
+Plug 'majutsushi/tagbar'
+
+" vim checkhealth
+Plug 'rhysd/vim-healthcheck'
+
+"bracket autopairing
+"check also https://www.reddit.com/r/vim/comments/6h0dy7/which_autoclosing_plugin_do_you_use/
+Plug 'jiangmiao/auto-pairs'
+
+" autosave pluging
+Plug '907th/vim-auto-save'
+
 "coc autocomplete
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "*****************************************************************************
 "" Include user's extra bundle
 "*****************************************************************************
-if filereadable(expand("~/.config/nvim/local_bundles.vim"))
-  source ~/.config/nvim/local_bundles.vim
+if filereadable(expand("~/.vimrc.local.bundles"))
+  source ~/.vimrc.local.bundles
 endif
 
 call plug#end()
 
+" required
+filetype plugin indent on
 "*****************************************************************************"
 " basic setup
 "*****************************************************************************"
@@ -90,6 +111,9 @@ highlight LineNr cterm=bold ctermfg=black
 highlight CursorLine cterm=bold ctermbg=grey ctermfg=NONE
 highlight CursorLineNR cterm=bold ctermfg=red ctermbg=NONE
 
+"" highlight brackets under cursor
+set showmatch
+
 "" Display hidden Gcharacters
 set showbreak=↪\
 set listchars=tab:→\ ,eol:↲,nbsp:␣,extends:>,precedes:<,trail:·
@@ -118,7 +142,7 @@ set smartcase
 "set spell
 
 "" Enable hidden buffers
-set hidden
+"set hidden
 
 "" Git Gutter always shows
 set signcolumn=yes
@@ -141,10 +165,10 @@ endif
 
 "Better display for messages
 set cmdheight=1
-"Smaller updatetime for CursorHold & CursorHoldI
-set updatetime=300
 "don't give |ins-completion-menu| messages.
-set shortmess+=c
+"set shortmess+=c
+" disable messages
+set shortmess+=astWAITc
 
 "if exists("*fugitive#statusline")
   "set statusline+=%{fugitive#statusline()}
@@ -159,12 +183,41 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 endif
 
-augroup nerdtree-highlights
+"dang that bell
+if has('autocmd')
+  autocmd GUIEnter * set visualbell t_vb=
+endif
+
+augroup nerdtree_highlights
     autocmd!
     autocmd FileType nerdtree call s:NERDTreeHighlight()
 augroup END
 
 autocmd BufEnter * lcd %:p:h
+
+augroup filetype_rust
+    autocmd!
+    autocmd BufNewFile,BufRead *.rs setlocal filetype=rust
+augroup END
+
+augroup filetype_python
+    autocmd!
+    autocmd BufNewFile,BufRead *.py setlocal filetype=python
+        \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+augroup END
+
+" make/cmake
+augroup filetype_make_cmake
+  autocmd!
+  autocmd FileType make setlocal noexpandtab
+  autocmd BufNewFile,BufRead CMakeLists.txt setlocal filetype=cmake
+augroup END
+
+" autogroup for save
+" Allow us to use Ctrl-s and Ctrl-q as keybinds
+"silent !stty -ixon
+" Restore default behaviour when leaving Vim.
+"autocmd VimLeave * silent !stty ixon
 
 "******************************************************************************
 " custom functions
@@ -194,13 +247,19 @@ function! s:NERDTreeHighlight()
 endfunction
 
 "******************************************************************************
-"python interpretor setup
+"python interpreter setup
+"recognize environment
 "avoid if u already have a language server setup / coc.nvim[coc-python] / etc
 "IMPORTANT : kite article 97-adding-libraries-from-pythonpath-to-the-kite-index
 "******************************************************************************
 
-let g:python3_host_prog = '/home/ironwolf1990/software/anaconda3/bin/python3.7'
-let g:python3_host_prog = '/home/ironwolf1990/software/anaconda3/bin/python'
+"let g:python3_host_prog = '/home/ironwolf1990/software/anaconda3/bin/python3.7'
+"let g:python_host_prog = '/home/ironwolf1990/software/anaconda3/bin/python'
+let python3= system('which python3.7')
+let g:python3_host_prog = substitute(python3 , '\n', '', '')
+
+let python= system('which python')
+let g:python_host_prog = substitute(python , '\n', '', '')
 
 "*****************************************************************************"
 " plugin customizations (no keymappings here!)
@@ -288,7 +347,31 @@ highlight SignColumn ctermbg=black
 "let g:coc_global_extensions = ['coc-prettier', 'coc-tsserver', 'coc-css', 'coc-json', 'coc-yaml']
 
 "kite
-set statusline+=%{kite#statusline()}
+let g:kite_tab_complete=1
+set completeopt+=menuone   " show the popup menu even when there is only 1 match
+set completeopt+=noinsert  " don't insert any text until user chooses a match
+set completeopt-=longest   " don't insert the longest common text
+set completeopt-=preview   " preview window up top!
+"set statusline+=%{kite#statusline()}
+
+let g:kite_documentation_continual=1
+autocmd CompleteDone * if !pumvisible() | pclose | endif
+set belloff+=ctrlg  " if vim beeps during completion
+
+"jedi here
+let g:jedi#auto_initialization = 1
+let g:jedi#popup_on_dot = 0
+let g:jedi#popup_select_first = 0
+let g:jedi#completions_enabled = 0
+let g:pymode_rope = 0
+
+" autosave here
+let g:auto_save = 1  " enable AutoSave on Vim startup
+let g:auto_save_events = ["InsertLeave", "TextChanged"]
+let g:auto_save_write_all_buffers = 1
+let g:auto_save_silent = 1
+"Smaller updatetime for CursorHold & CursorHoldI
+set updatetime=4000
 
 "*****************************************************************************
 " Mappings
@@ -340,8 +423,9 @@ cmap Q q
 cmap Qall qall
 
 "" Replace <Esc> with C-c
-inoremap <C-s> <Esc>
-nnoremap <C-s> :wa<cr>
+"inoremap <C-s> <Esc>
+"nnoremap <C-s> :w!<cr>
+noremap <C-z> :so%<cr>
 
 " Split
 noremap <Leader>h :<C-u>split<CR>
@@ -379,6 +463,18 @@ nnoremap <leader>f :Ag<CR>
 " Buffer nav
 noremap <leader>z :bp<CR>
 noremap <leader>x :bn<CR>
-
 " Close buffer
-noremap <leader>c :bprevious<bar>split<bar>bnext<bar>bdelete<CR>
+noremap <silent> <leader>c :bprevious<bar>split<bar>bnext<bar>bdelete<CR>
+
+" TAgbar Toggle
+nmap <silent> <C-q> :TagbarToggle<CR>
+
+"jedi here
+"let g:jedi#goto_command = <leader>d
+let g:jedi#goto_assignments_command = "<leader>g"
+let g:jedi#goto_stubs_command = "<leader>s"
+let g:jedi#goto_definitions_command = "<leader>d"
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = "<leader>n"
+"let g:jedi#completions_command = "<C-Space>"
+let g:jedi#rename_command = "<leader>r"

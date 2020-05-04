@@ -1,0 +1,229 @@
+"*****************************************************************************"
+" basic setup
+"*****************************************************************************"
+
+"" Encoding
+set encoding=utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8
+
+"" File formats
+set fileformats=unix,dos
+
+"" disable swap file and backup
+set noswapfile
+set nobackup
+set nowritebackup
+
+"" light-wrap width
+set wrap tw=80 fo+=t
+
+"" ruler + number
+syntax on
+"set ruler
+"set relativenumber number
+set number
+
+"" line highlights
+set cursorline
+highlight LineNr cterm=bold ctermfg=black
+highlight CursorLine cterm=bold ctermbg=grey ctermfg=NONE
+highlight CursorLineNR cterm=bold ctermfg=red ctermbg=NONE
+
+"" Display hidden Gcharacters
+set showbreak=↪\
+set listchars=tab:→\ ,eol:↲,nbsp:␣,extends:>,precedes:<,trail:·
+set list
+
+"" Fix backspace indent
+set backspace=indent,eol,start
+
+"" Tabs. May be overridden by autocmd rules
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set smarttab
+
+"" Automatic indentation is good
+set autoindent
+
+"" Searching
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" Spell Check
+"set spell
+
+"" Enable hidden buffers
+set hidden
+
+"" Git Gutter always shows
+set signcolumn=yes
+
+"" highlight white space, be sure to remove trail characters in list. helps in
+"" improving speed
+"highlight ExtraWhitespace ctermbg=red guibg=red
+"match ExtraWhitespace /\s\+$/
+
+"Statusline
+set laststatus=2
+set statusline=%F\ %m\ %r%h%w\ %=\[%{mode()}]\ (%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)
+
+"get shell
+if exists('$SHELL')
+    set shell=$SHELL
+else
+    set shell=/bin/bash
+endif
+
+"Better display for messages
+set cmdheight=1
+"Smaller updatetime for CursorHold & CursorHoldI
+set updatetime=300
+"don't give |ins-completion-menu| messages.
+set shortmess+=c
+
+"******************************************************************************
+" autocmd rule
+"******************************************************************************
+
+"" remember last cursor position
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif
+
+"dang that bell
+if has('autocmd')
+  autocmd GUIEnter * set visualbell t_vb=
+endif
+
+augroup nerdtree-highlights
+    autocmd!
+    autocmd FileType nerdtree call s:NERDTreeHighlight()
+augroup END
+
+autocmd BufEnter * lcd %:p:h
+
+augroup filetype_rust
+    autocmd!
+    autocmd BufNewFile,BufRead *.rs setlocal filetype=rust
+augroup END
+
+augroup filetype_python
+    autocmd!
+    autocmd BufNewFile,BufRead *.py setlocal filetype=python
+        \ cinwords=if,elif,else,for,while,try,except,finally,def,class,with
+augroup END
+
+" make/cmake
+augroup filetype_make_cmake
+  autocmd!
+  autocmd FileType make setlocal noexpandtab
+  autocmd BufNewFile,BufRead CMakeLists.txt setlocal filetype=cmake
+augroup END
+
+"******************************************************************************
+" custom functions
+"******************************************************************************
+
+function! PasteForStatusline()
+    let paste_status = &paste
+    if paste_status == 1
+        return " [paste] "
+    else
+        return ""
+    endif
+endfunction
+
+"*****************************************************************************
+" Mappings
+"
+":map   :noremap  :unmap     Normal, Visual, Select, Operator-pending
+":nmap  :nnoremap :nunmap    Normal
+":vmap  :vnoremap :vunmap    Visual and Select
+":smap  :snoremap :sunmap    Select
+":xmap  :xnoremap :xunmap    Visual
+":omap  :onoremap :ounmap    Operator-pending
+":map!  :noremap! :unmap!    Insert and Command-line
+":imap  :inoremap :iunmap    Insert
+":lmap  :lnoremap :lunmap    Insert, Command-line, Lang-Arg
+":cmap  :cnoremap :cunmap    Command-line
+"*****************************************************************************
+
+" Map leader to ,
+let mapleader=','
+
+" disable arrow keys
+noremap <Down> <Nop>
+noremap <Left> <Nop>
+noremap <Right> <Nop>
+noremap <Up> <Nop>
+
+"" disable arrow keys in insert mode!!!
+"noremap! <Down> <Nop>
+"noremap! <Left> <Nop>
+"noremap! <Right> <Nop>
+"noremap! <Up> <Nop>
+
+"" quickly cancel search highlighting
+nnoremap <leader><space> :nohlsearch<cr>
+
+"" better vertial movement for wrapped lines
+nnoremap j gj
+nnoremap k gk
+
+"" no one is really happy until you have this shortcuts
+cmap W! w!
+cmap Q! q!
+cmap Qall! qall!
+cmap Wq wq
+cmap Wa wa
+cmap wQ wq
+cmap WQ wq
+cmap W w
+cmap Q q
+cmap Qall qall
+
+"" Replace <Esc> with C-c
+inoremap <C-s> <Esc>
+nnoremap <C-s> :wa<cr>
+noremap <C-z> :so%<cr>
+
+" Split
+noremap <Leader>h :<C-u>split<CR>
+noremap <Leader>v :<C-u>vsplit<CR>
+
+"Opens an edit command with the path of the currently edited file filled in
+noremap <Leader>e :e <C-R>=expand("%:p:h") . "/" <CR>
+
+"Opens a tab edit command with the path of the currently edited file filled
+noremap <Leader>te :tabe <C-R>=expand("%:p:h") . "/" <CR>
+
+"Switching windows
+noremap <C-j> <C-w>j
+noremap <C-k> <C-w>k
+noremap <C-l> <C-w>l
+noremap <C-h> <C-w>h
+
+"Vmap for maintain Visual Mode after shifting > and <
+vmap < <gv
+vmap > >gv
+
+"Search mappings: These will make it so that going to the next search will
+"centre in on the line
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+"map fuzzyfinder
+nnoremap <C-f> :FZF<CR>
+"map silver-searcher
+nnoremap <leader>f :Ag<CR>
+
+" Buffer nav
+noremap <leader>z :bp<CR>
+noremap <leader>x :bn<CR>
+" Close buffer
+noremap <leader>c :bprevious<bar>split<bar>bnext<bar>bdelete<CR>
